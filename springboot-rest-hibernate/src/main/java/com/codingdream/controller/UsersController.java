@@ -24,6 +24,7 @@ public class UsersController {
 	@Autowired
 	UsersDAO usersDao;
 	
+	/*	Base Methods based Common for all Models */
 	@PostMapping("/createuser")
 	public Users createUser(@Valid @RequestBody Users user) {
 		return usersDao.saveUser(user);
@@ -48,12 +49,20 @@ public class UsersController {
 		Users user = usersDao.getUserByUserID(id);
 		if(user==null)
 			return ResponseEntity.notFound().build();
+		
+		user.setUser_id(userDetails.getUser_id());
+		user.setUsername(userDetails.getUsername());
+		user.setPassword(userDetails.getPassword());
+		user.setMobile_no(userDetails.getMobile_no());
+		user.setUser_pin(userDetails.getUser_pin());
+		user.setCreated_by(userDetails.getCreated_by());
+		user.setCreated_on(userDetails.getCreated_on());
+		user.setId(userDetails.getId());
 		user.setFirstName(userDetails.getFirstName());
 		user.setLastName(userDetails.getLastName());
 		user.setMail(userDetails.getMail());
 		user.setPhone(userDetails.getPhone());
-		user.setPassword(userDetails.getPassword());
-		user.setStampDate(userDetails.getStampDate());
+		user.setStamp_date(userDetails.getStamp_date());
 		
 		user = usersDao.saveUser(user);
 		
@@ -67,5 +76,37 @@ public class UsersController {
 			return ResponseEntity.notFound().build();
 		usersDao.deleteUser(user);
 		return ResponseEntity.ok().body(user);
-	} 
+	}
+	
+	/*	Customized Methods based on Requirement */
+	
+	@GetMapping("/validateUserByUserId/{id}/{password}")
+	public boolean validateUserByID(@PathVariable(value="id")Long id,
+			@PathVariable(value="password")String password) {
+		Users user = usersDao.getUserByUserID(id);
+		if(user.getPassword().equals(password))
+			return true;
+		return false;
+	}
+	
+	@GetMapping("/validateUserByUsername/{username}/{password}")
+	public boolean validateUserByUserName(@PathVariable(value="username")String username,
+			@PathVariable(value="password")String password) {
+		Users user = usersDao.getUserByUserName(username);
+		if(user.getPassword().equals(password))
+			return true;
+		return false;
+	}
+	
+	@GetMapping("/updatePassword/{username}/{oldPassword}/{newPassword}")
+	public boolean updateUserPassword(@PathVariable(value="username")String username,
+			@PathVariable(value="oldPassword")String oldPassword,
+			@PathVariable(value="newPassword")String newPassword) {
+		Users user = usersDao.getUserByUserName(username);
+		if(user.getPassword().equals(oldPassword)) {
+			user.setPassword(newPassword);
+			return true;
+		}
+		return false;
+	}
 }

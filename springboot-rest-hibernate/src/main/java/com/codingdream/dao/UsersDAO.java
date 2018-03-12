@@ -25,6 +25,10 @@ public class UsersDAO {
 		return usersRepository.findOne(id);
 	}
 	
+	public Users getUserByUserName(String username) {
+		return usersRepository.findOneByUserName(username);
+	}
+	
 	public void deleteUser(Users user) {
 		usersRepository.delete(user);
 	}
